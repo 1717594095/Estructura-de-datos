@@ -35,3 +35,10 @@ if __name__ == "__main__":
     circulo = Circulo(5)
     print("Círculo:")
     print(f"Área: {circulo.calcular_area():.2f}")
+    print(f"Perímetro: {circulo.calcular_perimetro():.2f}\n")
+
+    # Crear una instancia de rectángulo con largo 10 y ancho 4
+    rectangulo = Rectangulo(10, 4)
+    print("Rectángulo:")
+    print(f"Área: {rectangulo.calcular_area():.2f}")
+    print(f"Perímetro: {rectangulo.calcular_perimetro():.2f}")
