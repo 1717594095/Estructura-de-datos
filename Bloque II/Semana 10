@@ -1,0 +1,67 @@
+import java.util.*;
+import java.util.stream.Collectors;
+
+public class CampaniaVacunacion {
+    public static void main(String[] args) {
+        // 1. Crear 500 ciudadanos ficticios
+        Set<String> ciudadanos = new LinkedHashSet<>();
+        for (int i = 1; i <= 500; i++) {
+            ciudadanos.add("Ciudadano " + i);
+        }
+
+        // Generador de números aleatorios con semilla fija (para resultados reproducibles)
+        Random rnd = new Random(2025);
+
+        // Convertir a lista para seleccionar aleatoriamente
+        List<String> listaCiudadanos = new ArrayList<>(ciudadanos);
+
+        // 2. Seleccionar 75 vacunados con Pfizer
+        Collections.shuffle(listaCiudadanos, rnd);
+        Set<String> pfizer = new LinkedHashSet<>(listaCiudadanos.subList(0, 75));
+
+        // 3. Seleccionar 75 vacunados con AstraZeneca
+        Collections.shuffle(listaCiudadanos, rnd);
+        Set<String> astra = new LinkedHashSet<>(listaCiudadanos.subList(0, 75));
+
+        // 4. Aplicar operaciones de teoría de conjuntos
+        Set<String> unionVacunados = union(pfizer, astra);                // Vacunados (Pfizer ∪ AstraZeneca)
+        Set<String> noVacunados = diferencia(ciudadanos, unionVacunados); // No vacunados
+        Set<String> ambasDosis = interseccion(pfizer, astra);             // Ambas dosis (Pfizer ∩ AstraZeneca)
+        Set<String> soloPfizer = diferencia(pfizer, astra);               // Solo Pfizer
+        Set<String> soloAstra = diferencia(astra, pfizer);                // Solo AstraZeneca
+
+        // 5. Imprimir resultados
+        imprimir("TOTAL CIUDADANOS", ciudadanos);
+        imprimir("VACUNADOS (UNIÓN)", unionVacunados);
+        imprimir("NO VACUNADOS", noVacunados);
+        imprimir("AMBAS DOSIS (INTERSECCIÓN)", ambasDosis);
+        imprimir("SOLO PFIZER", soloPfizer);
+        imprimir("SOLO ASTRAZENECA", soloAstra);
+    }
+
+    // --- Operaciones de teoría de conjuntos ---
+    static <T> Set<T> union(Set<T> a, Set<T> b) {
+        Set<T> r = new LinkedHashSet<>(a);
+        r.addAll(b);
+        return r;
+    }
+
+    static <T> Set<T> interseccion(Set<T> a, Set<T> b) {
+        Set<T> r = new LinkedHashSet<>(a);
+        r.retainAll(b);
+        return r;
+    }
+
+    static <T> Set<T> diferencia(Set<T> a, Set<T> b) {
+        Set<T> r = new LinkedHashSet<>(a);
+        r.removeAll(b);
+        return r;
+    }
+
+    static void imprimir(String titulo, Set<String> datos) {
+        System.out.println("\n=== " + titulo + " (" + datos.size() + ") ===");
+        // Muestra lista separada por comas
+        String lista = datos.stream().collect(Collectors.joining(", "));
+        System.out.println(lista);
+    }
+}
