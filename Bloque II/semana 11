@@ -1,1 +1,116 @@
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Scanner;
+
+public class BasicTranslator {
+
+    // Diccionario de palabras para la traducción
+    private static Map<String, String> dictionary = new HashMap<>();
+    private static Scanner scanner = new Scanner(System.in);
+
+    // Inicializa el diccionario con las palabras base
+    private static void initializeDictionary() {
+        dictionary.put("time", "tiempo");
+        dictionary.put("person", "persona");
+        dictionary.put("year", "año");
+        dictionary.put("way", "camino/forma");
+        dictionary.put("day", "día");
+        dictionary.put("thing", "cosa");
+        dictionary.put("man", "hombre");
+        dictionary.put("world", "mundo");
+        dictionary.put("life", "vida");
+        dictionary.put("hand", "mano");
+        dictionary.put("part", "parte");
+        dictionary.put("child", "niño/a");
+        dictionary.put("eye", "ojo");
+        dictionary.put("woman", "mujer");
+        dictionary.put("place", "lugar");
+        dictionary.put("work", "trabajo");
+        dictionary.put("week", "semana");
+        dictionary.put("case", "caso");
+        dictionary.put("point", "punto/tema");
+        dictionary.put("government", "gobierno");
+        dictionary.put("company", "empresa/compañía");
+    }
+
+    public static void main(String[] args) {
+        initializeDictionary();
+        int option;
+
+        do {
+            showMenu();
+            if (scanner.hasNextInt()) {
+                option = scanner.nextInt();
+                scanner.nextLine(); // Consumir el salto de línea
+                processOption(option);
+            } else {
+                System.out.println("Entrada inválida. Por favor, ingrese un número.");
+                scanner.nextLine(); // Consumir la entrada incorrecta
+                option = -1; // Para que el bucle continúe
+            }
+        } while (option != 0);
+
+        System.out.println("¡Gracias por usar el traductor! ¡Adiós!");
+    }
+
+    // Muestra el menú de opciones
+    private static void showMenu() {
+        System.out.println("\n==================== MENÚ ====================");
+        System.out.println("1. Traducir una frase");
+        System.out.println("2. Agregar palabras al diccionario");
+        System.out.println("0. Salir");
+        System.out.print("Seleccione una opción: ");
+    }
+
+    // Procesa la opción seleccionada por el usuario
+    private static void processOption(int option) {
+        switch (option) {
+            case 1:
+                translateSentence();
+                break;
+            case 2:
+                addWordsToDictionary();
+                break;
+            case 0:
+                // El bucle principal se encarga de la salida
+                break;
+            default:
+                System.out.println("Opción no válida. Por favor, intente de nuevo.");
+        }
+    }
+
+    // Traduce una frase ingresada por el usuario
+    private static void translateSentence() {
+        System.out.print("Ingrese la frase a traducir: ");
+        String sentence = scanner.nextLine();
+        String[] words = sentence.toLowerCase().split("\\s+");
+        StringBuilder translatedSentence = new StringBuilder();
+
+        for (String word : words) {
+            // Eliminar puntuación al final de la palabra para una traducción más precisa
+            String cleanWord = word.replaceAll("[^a-zA-Z]", "");
+            String punctuation = word.substring(cleanWord.length());
+
+            if (dictionary.containsKey(cleanWord)) {
+                translatedSentence.append(dictionary.get(cleanWord)).append(punctuation).append(" ");
+            } else {
+                translatedSentence.append(word).append(" ");
+            }
+        }
+        System.out.println("Traducción: " + translatedSentence.toString().trim());
+    }
+
+    // Permite al usuario agregar nuevas palabras al diccionario
+    private static void addWordsToDictionary() {
+        System.out.println("Ingrese la palabra en inglés y su traducción en español (separadas por un espacio): ");
+        System.out.print("Ejemplo: 'book libro' o 'student estudiante'\n");
+        System.out.print("Inglés: ");
+        String englishWord = scanner.nextLine().toLowerCase();
+        System.out.print("Español: ");
+        String spanishWord = scanner.nextLine().toLowerCase();
+
+        dictionary.put(englishWord, spanishWord);
+        System.out.println("Palabra agregada exitosamente.");
+    }
+}
 
