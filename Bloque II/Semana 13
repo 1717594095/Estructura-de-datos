@@ -89,3 +89,6 @@ public class CatalogoRevistas
         catalogo.Iniciar();
     }
 }
+
+
+
