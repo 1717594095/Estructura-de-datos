@@ -1,1 +1,91 @@
+using System;
+using System.Collections.Generic;
 
+public class CatalogoRevistas
+{
+    private List<string> titulosDeRevistas;
+
+    public CatalogoRevistas()
+    {
+        titulosDeRevistas = new List<string>();
+        // Agregando al menos 10 títulos de revistas
+        titulosDeRevistas.Add("National Geographic");
+        titulosDeRevistas.Add("Time");
+        titulosDeRevistas.Add("Forbes");
+        titulosDeRevistas.Add("Scientific American");
+        titulosDeRevistas.Add("Vogue");
+        titulosDeRevistas.Add("The New Yorker");
+        titulosDeRevistas.Add("Wired");
+        titulosDeRevistas.Add("Rolling Stone");
+        titulosDeRevistas.Add("Economist");
+        titulosDeRevistas.Add("PC Magazine");
+    }
+
+    public void Iniciar()
+    {
+        Console.WriteLine("Bienvenido al Catálogo de Revistas.");
+        bool continuar = true;
+        while (continuar)
+        {
+            MostrarMenu();
+            string opcion = Console.ReadLine();
+            switch (opcion)
+            {
+                case "1":
+                    BuscarRevista();
+                    break;
+                case "2":
+                    continuar = false;
+                    Console.WriteLine("Saliendo del programa. ¡Hasta luego!");
+                    break;
+                default:
+                    Console.WriteLine("Opción no válida. Por favor, intente de nuevo.");
+                    break;
+            }
+        }
+    }
+
+    private void MostrarMenu()
+    {
+        Console.WriteLine("\n--- Menú ---");
+        Console.WriteLine("1. Buscar un título de revista");
+        Console.WriteLine("2. Salir");
+        Console.Write("Seleccione una opción: ");
+    }
+
+    private void BuscarRevista()
+    {
+        Console.Write("\nIngrese el título de la revista a buscar: ");
+        string tituloBuscado = Console.ReadLine();
+        bool encontrado = BusquedaIterativa(tituloBuscado);
+
+        if (encontrado)
+        {
+            Console.WriteLine($"\n'{tituloBuscado}' - Encontrado.");
+        }
+        else
+        {
+            Console.WriteLine($"\n'{tituloBuscado}' - No encontrado.");
+        }
+    }
+
+    // Algoritmo de búsqueda iterativa
+    private bool BusquedaIterativa(string titulo)
+    {
+        foreach (var t in titulosDeRevistas)
+        {
+            // Comparación sin distinguir mayúsculas de minúsculas
+            if (t.Equals(titulo, StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static void Main(string[] args)
+    {
+        CatalogoRevistas catalogo = new CatalogoRevistas();
+        catalogo.Iniciar();
+    }
+}
