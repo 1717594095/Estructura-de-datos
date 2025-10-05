@@ -1,0 +1,155 @@
+import java.util.*;
+
+// Clase interna para representar un Vuelo (Arista ponderada)
+class Vuelo {
+    public String destino;
+    public int costo;
+
+    public Vuelo(String destino, int costo) {
+        this.destino = destino;
+        this.costo = costo;
+    }
+}
+
+// Clase para representar la Ciudad/Aeropuerto (Nodo)
+class Ciudad {
+    public String nombre;
+    // Lista de adyacencia para los vuelos salientes
+    public List<Vuelo> vuelosSalientes; 
+
+    public Ciudad(String nombre) {
+        this.nombre = nombre;
+        this.vuelosSalientes = new ArrayList<>();
+    }
+
+    public void agregarVuelo(String destino, int costo) {
+        vuelosSalientes.add(new Vuelo(destino, costo));
+    }
+}
+
+// Clase para la solución de Grafo y Dijkstra
+public class GrafoVuelos {
+    private Map<String, Ciudad> mapaVuelos; // Mapa de adyacencia
+
+    public GrafoVuelos() {
+        this.mapaVuelos = new HashMap<>();
+    }
+
+    public void agregarCiudad(String nombre) {
+        mapaVuelos.putIfAbsent(nombre, new Ciudad(nombre));
+    }
+
+    public void agregarConexion(String origen, String destino, int costo) {
+        agregarCiudad(origen);
+        agregarCiudad(destino);
+        mapaVuelos.get(origen).agregarVuelo(destino, costo);
+    }
+
+    // --- REPORTERÍA: Visualizar la estructura del Grafo (Punto 3.1) ---
+    public void visualizarGrafo() {
+        System.out.println("\n--- REPORTERÍA: ESTRUCTURA DEL GRAFO DE VUELOS ---");
+        for (Ciudad ciudad : mapaVuelos.values()) {
+            System.out.print("Ciudad: " + ciudad.nombre + " -> ");
+            for (Vuelo vuelo : ciudad.vuelosSalientes) {
+                System.out.print("(" + vuelo.destino + ", Costo: $" + vuelo.costo + ") ");
+            }
+            System.out.println();
+        }
+    }
+
+    // --- Implementación de Dijkstra (Búsqueda Eficiente) ---
+    public void encontrarVuelosBaratos(String inicio, String fin) {
+        if (!mapaVuelos.containsKey(inicio) || !mapaVuelos.containsKey(fin)) {
+            System.out.println("Error: Ciudad de origen o destino no existe.");
+            return;
+        }
+
+        // Mapa para guardar el costo mínimo desde el inicio a cada ciudad
+        Map<String, Integer> costos = new HashMap<>();
+        // Mapa para reconstruir la ruta
+        Map<String, String> padres = new HashMap<>(); 
+        // Cola de Prioridad para evaluar la ruta más barata primero
+        PriorityQueue<Vuelo> colaPrioridad = new PriorityQueue<>(Comparator.comparingInt(v -> v.costo));
+
+        // Inicialización
+        for (String nombreCiudad : mapaVuelos.keySet()) {
+            costos.put(nombreCiudad, Integer.MAX_VALUE);
+            padres.put(nombreCiudad, null);
+        }
+
+        costos.put(inicio, 0);
+        colaPrioridad.add(new Vuelo(inicio, 0));
+
+        while (!colaPrioridad.isEmpty()) {
+            Vuelo vueloActual = colaPrioridad.poll();
+            String nombreActual = vueloActual.destino;
+            int costoActual = vueloActual.costo;
+
+            if (costoActual > costos.get(nombreActual)) {
+                continue;
+            }
+
+            Ciudad ciudadActual = mapaVuelos.get(nombreActual);
+            for (Vuelo vueloSaliente : ciudadActual.vuelosSalientes) {
+                int nuevoCosto = costoActual + vueloSaliente.costo;
+
+                if (nuevoCosto < costos.get(vueloSaliente.destino)) {
+                    costos.put(vueloSaliente.destino, nuevoCosto);
+                    padres.put(vueloSaliente.destino, nombreActual);
+                    colaPrioridad.add(new Vuelo(vueloSaliente.destino, nuevoCosto));
+                }
+            }
+        }
+
+        // Reconstruir y mostrar la ruta
+        mostrarRuta(inicio, fin, costos, padres);
+    }
+
+    private void mostrarRuta(String inicio, String fin, Map<String, Integer> costos, Map<String, String> padres) {
+        System.out.println("\n--- RESULTADO: RUTA MÁS BARATA ENCONTRADA ---");
+        int costoFinal = costos.get(fin);
+        if (costoFinal == Integer.MAX_VALUE) {
+            System.out.println("No hay ruta disponible de " + inicio + " a " + fin + ".");
+            return;
+        }
+
+        LinkedList<String> ruta = new LinkedList<>();
+        String paso = fin;
+        while (paso != null) {
+            ruta.addFirst(paso);
+            paso = padres.get(paso);
+        }
+
+        System.out.println("Ruta con menor costo de " + inicio + " a " + fin + ":");
+        System.out.println("Ruta: " + String.join(" -> ", ruta));
+        System.out.println("Costo Total: $" + costoFinal);
+    }
+
+    public static void main(String[] args) {
+        GrafoVuelos sistema = new GrafoVuelos();
+
+        // --- Base de datos ficticia (simulación) ---
+        sistema.agregarConexion("UIO", "GYE", 50); // Quito -> Guayaquil
+        sistema.agregarConexion("UIO", "CUE", 80); // Quito -> Cuenca
+        sistema.agregarConexion("GYE", "LOH", 90); // Guayaquil -> Loja
+        sistema.agregarConexion("GYE", "MTA", 30); // Guayaquil -> Manta
+        sistema.agregarConexion("CUE", "LOH", 70); // Cuenca -> Loja
+        sistema.agregarConexion("MTA", "UIO", 120); // Manta -> Quito
+        sistema.agregarConexion("CUE", "MTA", 40); // Cuenca -> Manta
+        sistema.agregarConexion("LOH", "UIO", 100); // Loja -> Quito
+
+        // 1. Reportería: Visualizar Grafo
+        sistema.visualizarGrafo();
+
+        long tiempoInicio = System.nanoTime();
+        
+        // 2. Búsqueda eficiente: Encontrar ruta UIO a LOH
+        sistema.encontrarVuelosBaratos("UIO", "LOH");
+
+        long tiempoFin = System.nanoTime();
+        double tiempoEjecucionMs = (tiempoFin - tiempoInicio) / 1000000.0;
+        
+        System.out.printf("\n--- ANÁLISIS DE TIEMPO ---\nTiempo de ejecución del algoritmo: %.3f ms\n", tiempoEjecucionMs);
+        System.out.println("Estructura de datos utilizada: Grafo Dirigido Ponderado.");
+    }
+}
